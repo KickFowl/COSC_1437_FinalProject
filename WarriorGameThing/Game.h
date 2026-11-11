@@ -1,28 +1,27 @@
 #pragma once
 
-#include"Character.h"	
+#include <iostream>
+#include <fstream>
+#include <windows.h>
 
+#include "defenitions.h"
+#include "EventHandle.h"
+#include "Entity.h"
+#include "RNG.h"
+
+
+//TODO: Turn this into a full on state mechine
+//Connect it to the events system
+//determain states based on events
 class Game
 {
-	bool isRunning = true;
-	Character playerCharacter;
 
+	bool running = true;
 public:
-	Game(); // default constructor
+	Game() = default; // default constructor
 
-	//Main game functions
-	void startGame();
-	void gameLoop();
+	inline bool isRunning() const { return running; }
 
-	//Character creation functions
-	Character createPlayerCharacter();
-	Weapon selectStarterWeapon();
-	Armor selectStarterArmor();
-
-	//Creation functions
-	Weapon createWeapon();
-	Armor createArmor();
-
-	//Utility functions
-	void waitForInput(); //its TRASH and takes the previous characters inputted
+	void pollEvents(EventHandle& hndl);
+	
 };
