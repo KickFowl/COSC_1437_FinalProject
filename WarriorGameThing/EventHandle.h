@@ -6,13 +6,9 @@
 
 class EventHandle
 {
-	std::uint8_t maxID = 0;
-	std::vector<std::uint8_t> freeID;
-
 	std::vector<eventPtr> eventStack;
 
-	std::uint8_t assignEventID();
-	void killSlot(eventPtr& slot);
+	void killSlot(eventPtr slot);
 public:
 	//used to add events across the game
 	eventPtr addEvent();
@@ -25,7 +21,6 @@ public:
 
 		//Allocate memory
 		eventPtr newEvent = new MetaEvent<T>(metadata);
-		newEvent->id = assignEventID();
 
 		if (it != eventStack.end()) *it = newEvent; //insert into tombstone
 		else eventStack.push_back(newEvent); //Append if no tombstone
@@ -37,8 +32,8 @@ public:
 	void ageEvents();
 
 	//if an event reaches it's lifespan we kill it and remove it from the stack
-	//Searches EventStack for event with matching id and then deletes and returns true
-	bool killEvent(int id);
+	//Searches EventStack for event returning true after killing it
+	bool killEvent(eventPtr ptr);
 	//Kills every event
 	void clearEvents();
 
@@ -49,11 +44,10 @@ public:
 	void printEvent(eventPtr event);
 
 	//getters
-	std::uint8_t getEventID(eventPtr event);
-	const Events getType(eventPtr event);
 
 	//polling functions
-	std::vector<std::uint8_t> getAllEventofType(const Events Type) const;
+	std::vector<eventPtr> getAllEventofType(const Events Type) const;
+	eventPtr getFirstofType(const Events Type) const;
 
 	~EventHandle();
 };

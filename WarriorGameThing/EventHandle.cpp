@@ -1,21 +1,8 @@
 #include "EventHandle.h"
 
 
-std::uint8_t EventHandle::assignEventID()
+void EventHandle::killSlot(eventPtr slot)
 {
-	if (!freeID.empty())
-	{
-		uint8_t id = freeID.back();
-		freeID.pop_back();
-		return id;
-	}
-
-	return ++maxID;
-}
-
-void EventHandle::killSlot(eventPtr& slot)
-{
-	freeID.push_back(slot->id);
 	delete slot;
 	slot = nullptr;
 }
@@ -27,7 +14,6 @@ eventPtr EventHandle::addEvent()
 
 	//Allocate memory
 	eventPtr newEvent = new Event();
-	newEvent->id = assignEventID();
 
 	if (it != eventStack.end())
 	{
@@ -52,17 +38,14 @@ void EventHandle::ageEvents()
 	}
 }
 
-bool EventHandle::killEvent(int id)
+bool EventHandle::killEvent(eventPtr ptr)
 {
-	for (auto it = eventStack.begin(); it != eventStack.end(); ++it)
+	auto it = std::find(eventStack.begin(), eventStack.end(), ptr);
+	if (*it)
 	{
-		if (*it != nullptr && (*it)->id == id)
-		{
-			killSlot(*it);
-			return true;
-		}
+		killSlot(*it);
+		return true;
 	}
-
 	return false;
 }
 
@@ -73,8 +56,6 @@ void EventHandle::clearEvents()
 		delete i;
 	}
 	eventStack.clear();
-	freeID.clear();
-	maxID = 0;
 }
 
 void EventHandle::listEvents()
@@ -90,36 +71,24 @@ void EventHandle::printEvent(eventPtr event)
 	event->print();
 }
 
-std::uint8_t EventHandle::getEventID(eventPtr event)
+std::vector<eventPtr> EventHandle::getAllEventofType(const Events Type) const
 {
-	auto it = std::find(eventStack.begin(), eventStack.end(), event);
-	if (it != eventStack.end()) {
-		return (*it)->id;
-	}
-
-	return 255;
-}
-
-const Events EventHandle::getType(eventPtr event)
-{
-	auto it = std::find(eventStack.begin(), eventStack.end(), event);
-	if (it != eventStack.end()) {
-		return (*it)->type;
-	}
-
-	return Events::EMPTY;
-}
-
-std::vector<std::uint8_t> EventHandle::getAllEventofType(const Events Type) const
-{
-	std::vector<std::uint8_t> list;
+	std::vector<eventPtr> list;
 
 	for (eventPtr i : eventStack)
 	{
-		if (i->type == Type) list.push_back(i->id);
+		if (i != nullptr && i->type == Type) list.push_back(i);
 	}
 
 	return list;
+}
+
+eventPtr EventHandle::getFirstofType(const Events Type) const
+{
+	for (eventPtr i : eventStack)
+	{
+		if (i && i->type == Type) return i;
+	}
 }
 
 EventHandle::~EventHandle()

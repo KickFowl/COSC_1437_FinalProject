@@ -3,9 +3,9 @@
 #include <windows.h>
 #include <string>
 #include <cstdint>
+#include <iostream>
 
 using ENTITY_ID = std::uint8_t;
-using EVENT_ID = std::uint8_t;
 
 constexpr ENTITY_ID ENGINE = 0;
 
@@ -36,6 +36,17 @@ inline std::wstring EventsToWstring(const Events& event)
 	}
 }
 
+inline std::string EventsToString(const Events& event)
+{
+	switch (event)
+	{
+	case Events::EMPTY: return "EMPTY";
+	case Events::RESOURCE_CHANGE: return "RESOURCE_CHANGE";
+	case Events::STAT_CHANGE: return "STAT_CHANGE";
+	default: return "INAVLID_ENUM";
+	}
+}
+
 inline std::wstring boolToWstring(bool item)
 {
 	return (item) ? L"True" : L"False";
@@ -44,7 +55,6 @@ inline std::wstring boolToWstring(bool item)
 struct Event
 {
 	Events type = Events::EMPTY;
-	EVENT_ID id = NULL;
 	bool immortal = false;
 
 	int lifeSpan = 1;
@@ -57,7 +67,7 @@ struct Event
 
 	virtual void print()
 	{
-		std::wstring eventInfo = L"EVENT:" + std::to_wstring(id) + L" TYPE:" + EventsToWstring(type) + L"\n";
+		std::wstring eventInfo = L"EVENT:" + EventsToWstring(type) + L"\n";
 		OutputDebugString(eventInfo.c_str());
 		std::wstring eventInfo_1 = L"Immortal: " + boolToWstring(immortal) + L"\nForce: " + boolToWstring(force) + L"\n";
 		OutputDebugString(eventInfo_1.c_str());
